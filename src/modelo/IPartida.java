@@ -10,11 +10,9 @@ public interface IPartida extends IObservableRemoto {
 
 	int getRonda() throws RemoteException;
 
-	ArrayList<IFicha> getFichasMesa() throws RemoteException;
-
 	ArrayList<IFicha> getFichasJugador(IDJugador idjug) throws RemoteException;
 
-	ArrayList<IFicha> getFichasPozo() throws RemoteException;
+	int getNumFichasPozo() throws RemoteException;
 
 	IFicha getFicha() throws RemoteException;
 
@@ -49,14 +47,8 @@ public interface IPartida extends IObservableRemoto {
 	 */
 	void iniciarPartida() throws RemoteException;
 
-	/*
-	 * INICIAR UNA NUEVA RONDA:
-	 */
-	void ronda() throws RemoteException;
 
-	// Este método se usa cuando se pone la primer ficha de la ronda 1
-	// Porque no hace falta obtener la ficha del modelo, ya se sabe que es esa.
-	void ponerFicha() throws RemoteException;
+	void ponerDoble() throws RemoteException;
 
 	void ponerFicha(IFicha ficha) throws RemoteException;
 

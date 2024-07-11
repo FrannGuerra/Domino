@@ -22,7 +22,9 @@ public class VistaConsola extends JFrame implements IVista {
     private JTextField inputConsola;
     private VentanaIngresoJugador ventanaIngreso;
     private Estados estado;
+    private ArrayList<IJugador> jugadores;
     private IJugador jugador;
+    IFicha fichaATirar;
     
     //private ArrayList<IFicha> fichasMesa;
     
@@ -114,9 +116,6 @@ public class VistaConsola extends JFrame implements IVista {
         inputConsola.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	// Cuando ingresan algo:
-                // tomo el texto escrito y lo escribo en la consola:
-            	//println();
             	String input = inputConsola.getText().trim();
                 println(input);
                 println();
@@ -127,7 +126,7 @@ public class VistaConsola extends JFrame implements IVista {
                 	if (estado == Estados.ESPERANDO_ELECCION_PONER_DOBLE) {
                 		if (opcion == 1) {
                 			estado = Estados.VISTA_INICIADA;
-                			controlador.ponerFicha();
+                			controlador.ponerDoble();
                 		}
                 		else {
                 			println("No ha ingresado una opción válida");
@@ -171,7 +170,7 @@ public class VistaConsola extends JFrame implements IVista {
                 	else if(estado == Estados.ESPERANDO_ELECCION_PONER_FICHA_JUNTADA) {
                 		if (opcion == 1) {
                 			estado = Estados.VISTA_INICIADA;
-                			controlador.ponerFichaJuntada();
+                			controlador.ponerFicha(fichaATirar);
                 		}
                 		else {
                 			println("No ha ingresado una opción válida");
@@ -243,8 +242,7 @@ public class VistaConsola extends JFrame implements IVista {
     
     @Override
     public void mostrarInicioPartida(ArrayList<IJugador> jugadores) {
-    	//fichasMesa = new ArrayList<IFicha>();
-    	
+    	this.jugadores = jugadores;
     	fichasMesa = new ArrayList<String>();
     	
     	println("Jugadores de esta partida: ");
@@ -261,12 +259,11 @@ public class VistaConsola extends JFrame implements IVista {
     }
     
     @Override
-    public void nuevaRonda(int ronda, ArrayList<IJugador> jugadores, int fichasPozo, ArrayList<IFicha> fichasMesa) {
+    public void nuevaRonda(int ronda, int fichasPozo) {
     	println("Comienza la ronda " + ronda);
     	println();
     	
-    	// Si fueran 4 debería mostrar nombre, ahora se que en el array solo tengo 2 jugadores:
-    	for (IJugador jugador : jugadores) {
+    	for (IJugador jugador : this.jugadores) {
     		if (!sonIguales(jugador, this.jugador)) {
     			println("Cantidad de fichas de " + jugador.getNombre() + ": " + controlador.getNumFichasJugador(jugador.getId()));
     		}
@@ -276,12 +273,9 @@ public class VistaConsola extends JFrame implements IVista {
     	println("Fichas en el pozo: " + fichasPozo);
     	println();
     	
-    	//this.fichasMesa = fichasMesa;
+    	
     	this.fichasMesa.clear();
-    	println("Fichas en la mesa: ");
-    	for (IFicha ficha: fichasMesa) {
-    		print(" [" + ficha.getNum1() + "|" + ficha.getNum2() + "]");
-    	}
+    	println("Fichas en la mesa:");
     	println();
     	
     	println("Tus fichas: ");
@@ -295,7 +289,7 @@ public class VistaConsola extends JFrame implements IVista {
     @Override
     public void comienzaFichaAlta(IJugador jugador) {
     	if (sonIguales(jugador, this.jugador)) {
-    		println("Comenzas porque sos el jugador que tiene el doble mas alto o la ficha más alta");
+    		println("Comenzás porque sos el jugador que tiene el doble mas alto o la ficha más alta");
     	} else {
     		println("Comienza " + jugador.getNombre() + ", porque es el jugador que tiene el doble mas alto o la ficha más alta");
     		println();
@@ -370,7 +364,7 @@ public class VistaConsola extends JFrame implements IVista {
     	if (sonIguales(jugadorTurno, this.jugador)) {
         	println("Fichas que puede colocar: ");
         	int opcion = 1;
-        	for (IFicha f: controlador.getFichasPuedePoner(jugador.getId())) {
+        	for (IFicha f: controlador.getFichasPuedePoner(this.jugador.getId())) {
         		println(opcion +  "- [" + f.getNum1() + "|" + f.getNum2() + "]");
         		opcion += 1;
         	}
@@ -418,6 +412,7 @@ public class VistaConsola extends JFrame implements IVista {
     @Override
     public void juntoPuedeTirar(IJugador jugadorTurno, IFicha ficha) {
     	if (sonIguales(jugadorTurno, this.jugador)) {
+    		fichaATirar = ficha;
         	println("La ficha que juntaste es [" + ficha.getNum1() + "|" + ficha.getNum2() + "]");
         	println("Se puede colocar");
         	print("Ingresá 1 para colocar la ficha: ");

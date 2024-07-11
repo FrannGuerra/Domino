@@ -11,7 +11,7 @@ public interface IVista {
 	
 	void mostrarInicioPartida(ArrayList<IJugador> jugadores);
 
-	void nuevaRonda(int ronda, ArrayList<IJugador> jugadores, int fichasPozo, ArrayList<IFicha> fichasMesa);
+	void nuevaRonda(int ronda, int fichasPozo);
 
 	void comienzaFichaAlta(IJugador jugadorTurno);
 	

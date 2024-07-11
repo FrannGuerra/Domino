@@ -42,7 +42,7 @@ public class Pozo implements Serializable {
 		return pozo.size();
 	}
 	
-	public Ficha obtenerFichaRandom() {
+	public Ficha obtenerFicha() {
 		Random random = new Random();
 		Ficha ficha = pozo.get(random.nextInt(pozo.size()));
 		eliminarFicha(ficha);

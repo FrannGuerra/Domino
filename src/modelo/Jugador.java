@@ -58,6 +58,72 @@ public class Jugador implements IJugador, Serializable {
 		}
 		return suma;
 	}
+	
+	public void juntarFichas(Pozo pozo) {
+		for (int i=1; i<=7; i++) {
+			agregarFicha(pozo.obtenerFicha());
+		}
+	}
+	
+	public Ficha obtenerMayorDoble() {
+		Ficha doble = null;
+		for (Ficha f : fichas) {
+			if (f.esDoble()) {
+				if (doble == null) {
+					doble = f;
+				} else if (f.getNum1() > doble.getNum1()) {
+					doble = f;
+				}
+			}
+		}
+		return doble;
+	}
+	
+	public Ficha obtenerFichaMasAlta() {
+		Ficha alta = fichas.get(0);
+		for (int i=1; i<fichas.size(); i++) {
+			Ficha ficha = fichas.get(i);
+			if (ficha.getValor() > alta.getValor()) {
+				alta = ficha;
+			}
+		}
+		return alta;
+	}
+	
+	public ArrayList<Ficha> fichasPuedePoner(Mesa mesa) {
+		ArrayList<Ficha> fichasPuedePoner = new ArrayList<Ficha>();
+		for (Ficha f : fichas) {
+			if (mesa.sePuedePoner(f)) {
+				fichasPuedePoner.add(f);
+			}
+		}
+		return fichasPuedePoner;
+	}
+	
+	// Devuelve la ficha en base a una ificha
+	public Ficha getFicha(IFicha ificha) {
+		Ficha ficha = null;
+		for (Ficha f: fichas) {
+			if ((f.getNum1() == ificha.getNum1()) && (f.getNum2() == ificha.getNum2())) {
+				ficha = f;
+				break;
+			}
+		}
+		return ficha;
+	}
+	
+	public void devolverFichas(Pozo pozo) {
+		ArrayList<Ficha> fichas = new ArrayList<Ficha>(this.fichas);
+		for (Ficha f: fichas) {
+			eliminarFicha(f);
+			pozo.agregarFicha(f);
+		}
+
+	}
+	
+	public boolean tieneFicha(Ficha ficha) {
+		return fichas.contains(ficha);
+	}
 
 	@Override
 	public IDJugador getId() {

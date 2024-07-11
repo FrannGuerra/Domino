@@ -50,6 +50,7 @@ public class VistaGrafica extends JFrame implements IVista {
 	private Controlador controlador;
 	private VentanaIngresoJugador ventanaIngreso;
 	private Estados estado;
+	private ArrayList<IJugador> jugadores;
 	private IJugador jugador;
 	private Map<IDJugador, String> ubicaciones;
 	
@@ -529,7 +530,7 @@ public class VistaGrafica extends JFrame implements IVista {
             		 if (fichaGrafica.getParent() == panelFichasJugadorSur) {
                 		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
                 			 estado = Estados.VISTA_INICIADA;
-                			 controlador.ponerFicha();
+                			 controlador.ponerDoble();
                 		 } else {
                 			 // Se apretó una ficha que no es la que tiene que tirar
                 			 println("No podés colocar esa ficha, tenes que colocar el doble más grande o la ficha más alta");
@@ -555,7 +556,7 @@ public class VistaGrafica extends JFrame implements IVista {
             		 if (fichaGrafica.getParent() == panelFichasJugadorSur) {
                 		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
                 			 estado = Estados.VISTA_INICIADA;
-                			 controlador.ponerFichaJuntada();
+                			 controlador.ponerFicha(fichaATirar);
                 		 } else {
                 			 println("No podés colocar esa ficha, tenes que colocar la que juntaste");
                 			 println();
@@ -601,6 +602,7 @@ public class VistaGrafica extends JFrame implements IVista {
     
 	@Override
 	public void mostrarInicioPartida(ArrayList<IJugador> jugadores) {
+		this.jugadores = jugadores;
 		ubicaciones = new HashMap<>();
 		fichasJugadorNorte = new ArrayList<FichaGraficaReves>();
 		fichasJugadorSur = new ArrayList<FichaGrafica>();
@@ -691,13 +693,13 @@ public class VistaGrafica extends JFrame implements IVista {
     
 	
     @Override
-	public void nuevaRonda(int ronda, ArrayList<IJugador> jugadores, int fichasPozo, ArrayList<IFicha> fichasMesa) {
+	public void nuevaRonda(int ronda, int fichasPozo) {
     	println("Comienza la ronda " + ronda);
     	println();
     	labelRonda.setText("Ronda: " + ronda);
     	
-    	// Fichas de oponentes:
-    	for (IJugador jugador : jugadores) {
+    	// Fichas de los jugadores:
+    	for (IJugador jugador : this.jugadores) {
     		if (!sonIguales(jugador, this.jugador)) {
     			String ubicacion = ubicaciones.get(jugador.getId());
     			ArrayList<FichaGraficaReves> fichas;
@@ -724,7 +726,7 @@ public class VistaGrafica extends JFrame implements IVista {
     	}
     	
     	// Pozo
-    	if (jugadores.size() != 4) {
+    	if (this.jugadores.size() != 4) {
 	    	for (int i=this.fichasPozo.size()+1; i<=fichasPozo; i++) {
 				FichaGraficaReves fichaGraficaReves = crearFichaGraficaReves(false, true);	// vertical (false), pozo (true)
 				this.fichasPozo.add(fichaGraficaReves);
@@ -741,7 +743,7 @@ public class VistaGrafica extends JFrame implements IVista {
 			panelFichasJugadorSur.add(fichaGrafica);
     	}
     	
-    	// Mesa
+    	
     	mesa.sacarFichas();
     	
     	revalidate();
@@ -752,12 +754,12 @@ public class VistaGrafica extends JFrame implements IVista {
     public void comienzaFichaAlta(IJugador jugador) {
     	this.jugadorTurno = jugador;
     	if (sonIguales(jugadorTurno, this.jugador)) {
-    		println("Comenzas porque sos el jugador que tiene el doble mas alto o la ficha más alta");
+    		println("Comenzás porque sos el jugador que tiene el doble mas alto o la ficha más alta");
     		labelTurnoJugadorSur.setVisible(true);
     	} else {
-    		println("Comienza " + jugadorTurno.getNombre() + ", porque es el jugador que tiene el doble mas alto o la ficha más alta");
+    		println("Comienza " + jugador.getNombre() + ", porque es el jugador que tiene el doble mas alto o la ficha más alta");
     		println();
-			String ubicacion = ubicaciones.get(jugadorTurno.getId());
+			String ubicacion = ubicaciones.get(jugador.getId());
 			if (ubicacion == "norte") {
 				labelTurnoJugadorNorte.setVisible(true);	
 			} else if (ubicacion == "este") {

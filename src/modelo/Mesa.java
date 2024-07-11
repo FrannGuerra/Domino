@@ -4,26 +4,24 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Mesa implements Serializable {
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
+	
 	private ArrayList<Ficha> fichasMesa;
-	private int extremo1;
-	private int extremo2;
+	private int extremoIzquierda;
+	private int extremoDerecha;
 	
 	public Mesa() {
 		fichasMesa = new ArrayList<Ficha>();
 	}
 
-	// pongo la ficha cuando no hay fichas, o cuando solo va en un extremo:
+	// Agregar una ficha a la mesa cuando no tiene fichas o cuando se puede poner en un solo extremo
 	public boolean agregarFicha(Ficha ficha) {
 		boolean extremo = false;
-		if (fichasMesa.size() == 0) {
+		if (fichasMesa.isEmpty()) {
 			fichasMesa.add(ficha);
-			extremo1 = ficha.getNum1();
-			extremo2 = ficha.getNum2();
+			extremoIzquierda = ficha.getNum1();
+			extremoDerecha = ficha.getNum2();
 		} else {
 			extremo = sePuedePonerExtremo(ficha, true);
 			agregarFicha(ficha, extremo);
@@ -33,28 +31,23 @@ public class Mesa implements Serializable {
 		return extremo;
 	}
 	
-	// pongo la ficha cuando puede ir en los dos extremos, le paso el extremo
+	// Agregar una ficha a la mesa indicando el extremo
 	public void agregarFicha(Ficha ficha, boolean extremo) {
-		if (extremo) {  // Extremo izquierdo = true
-			if (ficha.getNum2() != extremo1) {
-				//ficha.intercambiarNumeros();
-				extremo1 = ficha.getNum2();				// En vez de intercambiar los dejo como están pero cambio el extremo
+		if (extremo) {  // Extremo izquierdo 
+			if (ficha.getNum2() != extremoIzquierda) {
+				extremoIzquierda = ficha.getNum2();				
 			} else {
-				extremo1 = ficha.getNum1();
+				extremoIzquierda = ficha.getNum1();
 			}
-				
 			fichasMesa.add(0, ficha);
-			//extremo1 = ficha.getNum1();
-		}
-		else {	// Extremo derecho = false
-			if (ficha.getNum1() != extremo2) {
-				//ficha.intercambiarNumeros();
-				extremo2 = ficha.getNum1();
+		} else {	// Extremo derecho
+			if (ficha.getNum1() != extremoDerecha) {
+				
+				extremoDerecha = ficha.getNum1();
 			} else {
-				extremo2 = ficha.getNum2();
+				extremoDerecha = ficha.getNum2();
 			}
 			fichasMesa.add(ficha);
-			//extremo2 = ficha.getNum2();
 		}
 	}
 	
@@ -67,24 +60,31 @@ public class Mesa implements Serializable {
 	}
 	
 	public boolean sePuedePoner(Ficha ficha) {
-		return (fichasMesa.size() == 0 || sePuedePonerExtremo(ficha, false) || sePuedePonerExtremo(ficha, true));
+		return (fichasMesa.isEmpty() || sePuedePonerExtremo(ficha, false) || sePuedePonerExtremo(ficha, true));
 	}
 
 	public boolean ambosExtremos(Ficha ficha) {
-		return ( (ficha.getNum1()==extremo1 || ficha.getNum2()==extremo1) && (ficha.getNum1()==extremo2 || ficha.getNum2()==extremo2) );
+		return ( (ficha.getNum1()==extremoIzquierda || ficha.getNum2()==extremoIzquierda) && (ficha.getNum1()==extremoDerecha || ficha.getNum2()==extremoDerecha) );
 	}
 	
 	
 	public boolean sePuedePonerExtremo(Ficha ficha, boolean extremo) {
 		boolean sePuede = false;
 		if (extremo) {
-			sePuede =  ficha.getNum1()==extremo1 || ficha.getNum2()==extremo1;
+			sePuede =  ficha.getNum1()==extremoIzquierda || ficha.getNum2()==extremoIzquierda;
 		} else {
-			sePuede =  ficha.getNum1()==extremo2 || ficha.getNum2()==extremo2;
+			sePuede =  ficha.getNum1()==extremoDerecha || ficha.getNum2()==extremoDerecha;
 		}
 		return sePuede;
 	}
 	
+	public void devolverFichas(Pozo pozo) {
+		ArrayList<Ficha> fichas = new ArrayList<Ficha>(fichasMesa);
+		for (Ficha f: fichas) {
+			eliminarFicha(f);
+			pozo.agregarFicha(f);
+		}
+	}
 	
 	
 	

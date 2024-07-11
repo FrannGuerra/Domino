@@ -19,7 +19,6 @@ public class Controlador implements IControladorRemoto, Serializable {
 	
 	private IPartida modelo;
 	private IVista vista;
-	//private IJugador jugador;
 	
 	public Controlador() {
 	}
@@ -46,10 +45,9 @@ public class Controlador implements IControladorRemoto, Serializable {
 		}
 	}
 	
-	
-	public void ponerFicha() {
+	public void ponerDoble() {
 		try {
-			modelo.ponerFicha();
+			modelo.ponerDoble();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -84,14 +82,6 @@ public class Controlador implements IControladorRemoto, Serializable {
 	public void juntarPozo() {
 		try {
 			modelo.juntarPozo();
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void ponerFichaJuntada() {
-		try {
-			modelo.ponerFicha(modelo.getFicha());
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -145,7 +135,8 @@ public class Controlador implements IControladorRemoto, Serializable {
 					break;
 					
 				case NUEVA_RONDA:
-					vista.nuevaRonda(this.modelo.getRonda(), this.modelo.getJugadores(), this.modelo.getFichasPozo().size(), this.modelo.getFichasMesa());
+					System.out.println("Ronda " + this.modelo.getRonda() + " - FichasPozo: " + this.modelo.getNumFichasPozo());
+					vista.nuevaRonda(this.modelo.getRonda(), this.modelo.getNumFichasPozo());
 					break;
 				
 				case COMIENZA_FICHA_ALTA:
@@ -181,7 +172,7 @@ public class Controlador implements IControladorRemoto, Serializable {
 					break;	
 					
 				case MOSTRAR_POZO:
-					vista.mostrarPozo(this.modelo.getFichasPozo().size());
+					vista.mostrarPozo(this.modelo.getNumFichasPozo());
 					break;							
 				
 				case NUEVAS_FICHAS_JUGADOR:
