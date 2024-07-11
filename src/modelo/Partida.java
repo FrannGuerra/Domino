@@ -45,26 +45,7 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	
 	@Override
 	public IJugador agregarJugador(String nombre) throws RemoteException {
-		IDJugador idjug = null;
-		if (manejadorJugadores.getNumJugadores() == 0) {
-			idjug = IDJugador.JUGADOR1;
-		} else if (manejadorJugadores.getNumJugadores() == 1) {
-			idjug = IDJugador.JUGADOR2;
-		} else if (manejadorJugadores.getNumJugadores() == 2) {
-			if (cantidadJugadores > 2) 
-				idjug = IDJugador.JUGADOR3;
-		} else if (manejadorJugadores.getNumJugadores() == 3) {
-			if (cantidadJugadores == 4) 
-				idjug = IDJugador.JUGADOR4;
-		}
-		
-		if (idjug != null) {
-			Jugador jugador = new Jugador(nombre, idjug);
-			manejadorJugadores.agregarJugador(jugador);
-			return jugador;
-		} else {
-			return null;
-		}
+		return manejadorJugadores.agregarJugador(nombre, cantidadJugadores);
 	}
 	
 	@Override
@@ -74,6 +55,72 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		ronda();
 	}
 
+	// Cuando el usuario ponga la ficha (evento JUGADOR_TIRAR_DOBLE):
+	@Override
+	public void ponerDoble() throws RemoteException {
+		this.extremo = mesa.agregarFicha(fichaJugada);
+		jugadaFicha();
+	}
+	
+	// Cuando el usuario ponga la ficha (evento JUGADOR_ELEGIR_FICHA):
+	@Override
+	public void ponerFicha(IFicha ficha) throws RemoteException {
+		fichaJugada = jugadorTurno.getFicha(ficha);
+		if (mesa.ambosExtremos(fichaJugada)) {	
+			notificarObservadores(Eventos.AMBOS_EXTREMOS); 
+		}
+		else { 			
+			this.extremo = mesa.agregarFicha(fichaJugada);
+			jugadaFicha();
+		}
+	}
+	
+	// Cuando el usuario elija el extremo (evento AMBOS_EXTREMOS):
+	@Override
+	public void ponerFichaExtremo(boolean extremo) throws RemoteException {
+		this.extremo = extremo;
+		mesa.agregarFicha(fichaJugada, extremo);
+		jugadaFicha();
+	}
+	
+	// Cuando el usuario junte del pozo (evento JUGADOR_JUNTAR_POZO):
+	@Override
+	public void juntarPozo() throws RemoteException {
+		fichaJugada = pozo.obtenerFicha();		
+		jugadorTurno.agregarFicha(fichaJugada);			
+		notificarObservadores(Eventos.MOSTRAR_POZO);
+		notificarObservadores(Eventos.MOSTRAR_FICHAS_JUGADOR);
+		if (mesa.sePuedePoner(fichaJugada)) {
+			notificarObservadores(Eventos.JUNTO_PUEDE_TIRAR);
+		} else {
+			notificarObservadores(Eventos.JUNTO_NO_PUEDE_TIRAR);
+			noPuedePoner();
+		}
+	}
+	
+	// Cuando el usuario pase (evento PASA):
+	@Override
+	public void pasar() throws RemoteException {
+		if (jugadoresPasan < manejadorJugadores.getNumJugadores()) { 
+			pasarTurno();
+		} else {
+			cierre();
+		}
+	}
+	
+	// Cuando el jugador decide jugar una nueva ronda (evento CONFIRMAR_NUEVA_RONDA):
+	@Override
+	public void comenzarNuevaRonda() throws RemoteException {
+		jugadoresNuevaRonda++;
+		if (jugadoresNuevaRonda == manejadorJugadores.getNumJugadores()) {
+			jugadoresNuevaRonda = 0;
+			ronda();
+		}
+	}
+	
+	////////////////////////////////////////
+	//// MÉTODOS PRIVADOS
+	
 	private void ronda() throws RemoteException {
 		jugadoresPasan = 0;
 		manejadorJugadores.repartirFichas(pozo);	
@@ -86,22 +133,12 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		}	
 	}
 	
-	
 	private void jugadaFichaMasAlta() throws RemoteException {
 		fichaJugada = manejadorJugadores.buscarDobleMasAlto();
 		jugadorTurno = manejadorJugadores.jugadorPropietario(fichaJugada);
-		
 		mano = jugadorTurno;
 		notificarObservadores(Eventos.COMIENZA_FICHA_ALTA);
 		notificarObservadores(Eventos.JUGADOR_TIRAR_DOBLE); 
-	}
-	
-	
-	// Cuando el usuario ponga la ficha (evento JUGADOR_TIRAR_DOBLE):
-	@Override
-	public void ponerDoble() throws RemoteException {
-		this.extremo = mesa.agregarFicha(fichaJugada);
-		jugadaFicha();
 	}
 	
 	private void jugadaFicha() throws RemoteException {
@@ -121,40 +158,15 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		turno();
 	}
 	
-
-	
 	private void turno() throws RemoteException {
-		if (jugadorTurno.fichasPuedePoner(mesa).size() > 0 ) {	// SI PUEDE PONER:
+		if (jugadorTurno.fichasPuedePoner(mesa).size() > 0 ) {	
 			jugadoresPasan = 0;	
 			notificarObservadores(Eventos.JUGADOR_ELEGIR_FICHA);
 		}
-		else {												// SI NO PUEDE PONER:
+		else {												
 			noPuedePoner();
 		}
 		
-	}
-	
-	
-	// Cuando el usuario ponga la ficha (evento JUGADOR_ELEGIR_FICHA):
-	@Override
-	public void ponerFicha(IFicha ficha) throws RemoteException {
-		fichaJugada = jugadorTurno.getFicha(ficha);
-		if (mesa.ambosExtremos(fichaJugada)) {	
-			notificarObservadores(Eventos.AMBOS_EXTREMOS); 
-		}
-		else { 			
-			this.extremo = mesa.agregarFicha(fichaJugada);
-			jugadaFicha();
-		}
-	}
-	
-	
-	// Cuando el usuario elija el extremo (evento AMBOS_EXTREMOS):
-	@Override
-	public void ponerFichaExtremo(boolean extremo) throws RemoteException {
-		this.extremo = extremo;
-		mesa.agregarFicha(fichaJugada, extremo);
-		jugadaFicha();
 	}
 	
 	private void noPuedePoner() throws RemoteException {
@@ -167,36 +179,6 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		}
 	}
 
-
-	// Cuando el usuario junte del pozo (evento JUGADOR_JUNTAR_POZO):
-	@Override
-	public void juntarPozo() throws RemoteException {
-		fichaJugada = pozo.obtenerFicha();		
-		jugadorTurno.agregarFicha(fichaJugada);			
-		
-		notificarObservadores(Eventos.MOSTRAR_POZO);
-		notificarObservadores(Eventos.NUEVAS_FICHAS_JUGADOR);
-			
-		if (mesa.sePuedePoner(fichaJugada)) {
-			notificarObservadores(Eventos.JUNTO_PUEDE_TIRAR);
-		} else {
-			notificarObservadores(Eventos.JUNTO_NO_PUEDE_TIRAR);
-			noPuedePoner();
-		}
-	}
-
-	@Override
-	public void pasar() throws RemoteException {
-		if (jugadoresPasan < manejadorJugadores.getNumJugadores()) { 
-			pasarTurno();
-		} else {
-			cierre();
-		}
-	}
-	
-	
-	
-	
 	private void domino() throws RemoteException {
 		manejadorJugadores.sumarPuntosGanador(jugadorTurno);	
 		notificarObservadores(Eventos.DOMINO);
@@ -209,7 +191,6 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		notificarObservadores(Eventos.CIERRE);
 		verificarTerminoPartida();
 	}
-	
 
 	private void verificarTerminoPartida() throws RemoteException {
 		if (jugadorTurno.getPuntos() >= puntosParaGanar) {
@@ -222,48 +203,44 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		}
 	}
 	
-	
 	private void devolverFichasPozo() {
 		manejadorJugadores.devolverFichas(pozo);
 		mesa.devolverFichas(pozo);
 		pozo.mezclarPozo();
 	}
 	
+	////////////////////////////////////////
+	//// GETTERS PARA EL CONTROLADOR:
 	
-	@Override
-	public void comenzarNuevaRonda() throws RemoteException {
-		jugadoresNuevaRonda++;
-		if (jugadoresNuevaRonda == manejadorJugadores.getNumJugadores()) {
-			jugadoresNuevaRonda = 0;
-			ronda();
-		}
-	}
-	
-	
-
-	
-
-	
-
-	
-	
-	////////////////////////////////
 	@Override
 	public int getCantidadJugadores() throws RemoteException {
 		return cantidadJugadores;
 	}
 	
 	@Override
-	public int getRonda() throws RemoteException {
-		return ronda;
+	public ArrayList<IJugador> getJugadores() throws RemoteException {
+		ArrayList<IJugador> ijugadores = new ArrayList<>();
+		ijugadores.addAll(manejadorJugadores.getJugadores());
+		return ijugadores;
 	}
 	
 	@Override
 	public ArrayList<IFicha> getFichasJugador(IDJugador idjug) throws RemoteException {
 		ArrayList<IFicha> fichas = new ArrayList<>();
 		fichas.addAll(manejadorJugadores.buscarJugador(idjug).getFichas());
-		
 		return fichas;
+	}
+	
+	@Override
+	public ArrayList<IFicha> getFichasPuedePoner(IDJugador idjug) throws RemoteException {
+		ArrayList<IFicha> fichas = new ArrayList<>();
+		fichas.addAll(manejadorJugadores.buscarJugador(idjug).fichasPuedePoner(mesa));
+		return fichas;
+	}
+	
+	@Override
+	public int getRonda() throws RemoteException {
+		return ronda;
 	}
 	
 	@Override
@@ -281,39 +258,8 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		return extremo;
 	}
 	
-	/*
-	 * OBTENER EL JUGADOR QUE TIENE EL TURNO:
-	 */
 	@Override
 	public IJugador getJugadorTurno() throws RemoteException {
 		return jugadorTurno;
 	}
-	
-	/*
-	 * OBTENER LA LISTA DE JUGADORES:
-	 */
-	@Override
-	public ArrayList<IJugador> getJugadores() throws RemoteException {
-		ArrayList<IJugador> ijugadores = new ArrayList<>();
-		ijugadores.addAll(manejadorJugadores.getJugadores());
-		
-		return ijugadores;
-	}
-
-	/*
-	 * OBTENER LAS FICHAS QUE PUEDE PONER UN JUGADOR:
-	 */
-	@Override
-	public ArrayList<IFicha> getFichasPuedePoner(IDJugador idjug) throws RemoteException {
-		ArrayList<IFicha> fichas = new ArrayList<>();
-		fichas.addAll(manejadorJugadores.buscarJugador(idjug).fichasPuedePoner(mesa));
-		return fichas;
-	}
-	
-	@Override
-	public int getNumFichasJugador(IDJugador jugador) throws RemoteException {
-		return manejadorJugadores.buscarJugador(jugador).getFichas().size();
-	}
-	///////////////////////////////////////////////////////////////////////////////////
-	
 }

@@ -2,7 +2,6 @@ package modelo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
 import commons.IDJugador;
 
 public class Jugador implements IJugador, Serializable {
@@ -22,6 +21,11 @@ public class Jugador implements IJugador, Serializable {
 	}
 	
 	@Override
+	public IDJugador getId() {
+		return id;
+	}
+	
+	@Override
 	public String getNombre() {
 		return nombre;
 	}
@@ -31,8 +35,8 @@ public class Jugador implements IJugador, Serializable {
 		return puntos;
 	}
 	
-	public void agregarPuntos(int puntos) {
-		this.puntos += puntos;
+	public ArrayList<Ficha> getFichas() {
+		return fichas;
 	}
 	
 	public void agregarFicha(Ficha ficha) {
@@ -43,10 +47,6 @@ public class Jugador implements IJugador, Serializable {
 		fichas.remove(ficha);
 	}
 	
-	public ArrayList<Ficha> getFichas() {
-		return fichas;
-	}
-
 	public int getCantidadFichas() {
 		return fichas.size();
 	}
@@ -62,6 +62,14 @@ public class Jugador implements IJugador, Serializable {
 	public void juntarFichas(Pozo pozo) {
 		for (int i=1; i<=7; i++) {
 			agregarFicha(pozo.obtenerFicha());
+		}
+	}
+	
+	public void devolverFichas(Pozo pozo) {
+		ArrayList<Ficha> fichas = new ArrayList<Ficha>(this.fichas);
+		for (Ficha f: fichas) {
+			eliminarFicha(f);
+			pozo.agregarFicha(f);
 		}
 	}
 	
@@ -112,21 +120,11 @@ public class Jugador implements IJugador, Serializable {
 		return ficha;
 	}
 	
-	public void devolverFichas(Pozo pozo) {
-		ArrayList<Ficha> fichas = new ArrayList<Ficha>(this.fichas);
-		for (Ficha f: fichas) {
-			eliminarFicha(f);
-			pozo.agregarFicha(f);
-		}
-
-	}
-	
 	public boolean tieneFicha(Ficha ficha) {
 		return fichas.contains(ficha);
 	}
 
-	@Override
-	public IDJugador getId() {
-		return id;
+	public void agregarPuntos(int puntos) {
+		this.puntos += puntos;
 	}
 }

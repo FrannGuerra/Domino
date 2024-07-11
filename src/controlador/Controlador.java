@@ -45,12 +45,25 @@ public class Controlador implements IControladorRemoto, Serializable {
 		}
 	}
 	
-	public void ponerDoble() {
+	public int getNumFichasJugador(IDJugador jugador) {
+		int numFichas = 0;
 		try {
-			modelo.ponerDoble();
+			numFichas =  modelo.getFichasJugador(jugador).size();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
+		return numFichas;
+	}
+	
+	public ArrayList<IFicha> getFichasJugador(IDJugador jugador) {
+		ArrayList<IFicha> fichas = null;
+		try {
+			fichas = modelo.getFichasJugador(jugador);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return fichas;
+		
 	}
 	
 	public ArrayList<IFicha> getFichasPuedePoner(IDJugador jugador) {
@@ -61,6 +74,14 @@ public class Controlador implements IControladorRemoto, Serializable {
 			e.printStackTrace();
 		}
 		return fichas;
+	}
+	
+	public void ponerDoble() {
+		try {
+			modelo.ponerDoble();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void ponerFicha(IFicha ficha) {
@@ -102,27 +123,6 @@ public class Controlador implements IControladorRemoto, Serializable {
 			e.printStackTrace();
 		}
 	}
-	
-	public int getNumFichasJugador(IDJugador jugador) {
-		int numFichas = 0;
-		try {
-			numFichas =  modelo.getNumFichasJugador(jugador);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		return numFichas;
-	}
-	
-	public ArrayList<IFicha> getFichasJugador(IDJugador jugador) {
-		ArrayList<IFicha> fichas = null;
-		try {
-			fichas = modelo.getFichasJugador(jugador);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		return fichas;
-		
-	}
 
 	@Override
 	public void actualizar(IObservableRemoto modelo, Object object) throws RemoteException {
@@ -135,7 +135,6 @@ public class Controlador implements IControladorRemoto, Serializable {
 					break;
 					
 				case NUEVA_RONDA:
-					System.out.println("Ronda " + this.modelo.getRonda() + " - FichasPozo: " + this.modelo.getNumFichasPozo());
 					vista.nuevaRonda(this.modelo.getRonda(), this.modelo.getNumFichasPozo());
 					break;
 				
@@ -175,10 +174,6 @@ public class Controlador implements IControladorRemoto, Serializable {
 					vista.mostrarPozo(this.modelo.getNumFichasPozo());
 					break;							
 				
-				case NUEVAS_FICHAS_JUGADOR:
-					vista.nuevasFichasJugador(this.modelo.getJugadorTurno());
-					break;
-					
 				case JUNTO_PUEDE_TIRAR:
 					vista.juntoPuedeTirar(this.modelo.getJugadorTurno(), this.modelo.getFicha());
 					break;	
@@ -216,6 +211,4 @@ public class Controlador implements IControladorRemoto, Serializable {
 	public <T extends IObservableRemoto> void setModeloRemoto(T modeloRemoto) throws RemoteException {
 		this.modelo = (IPartida) modeloRemoto;
 	}
-	
-	
 }

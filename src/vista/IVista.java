@@ -31,8 +31,6 @@ public interface IVista {
 	
 	void mostrarPozo(int fichasPozo);
 	
-	void nuevasFichasJugador(IJugador jugadorTurno);
-	
 	void juntoPuedeTirar(IJugador jugadorTurno, IFicha ficha);
 	
 	void juntoNoPuedeTirar(IJugador jugadorTurno, IFicha ficha);

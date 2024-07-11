@@ -23,24 +23,23 @@ public class Mesa implements Serializable {
 			extremoIzquierda = ficha.getNum1();
 			extremoDerecha = ficha.getNum2();
 		} else {
+			// Si se puede poner en izquierda, da true (izquierda), sino false (derecha)
 			extremo = sePuedePonerExtremo(ficha, true);
 			agregarFicha(ficha, extremo);
-			// le paso el extremo izquierdo, si se puede poner, da true, 
-			// si no se puede da false, que es el extremo derecho.
 		}
 		return extremo;
 	}
 	
 	// Agregar una ficha a la mesa indicando el extremo
 	public void agregarFicha(Ficha ficha, boolean extremo) {
-		if (extremo) {  // Extremo izquierdo 
+		if (extremo) {	// Izquierda
 			if (ficha.getNum2() != extremoIzquierda) {
 				extremoIzquierda = ficha.getNum2();				
 			} else {
 				extremoIzquierda = ficha.getNum1();
 			}
 			fichasMesa.add(0, ficha);
-		} else {	// Extremo derecho
+		} else {	// Derecha
 			if (ficha.getNum1() != extremoDerecha) {
 				
 				extremoDerecha = ficha.getNum1();
@@ -55,18 +54,13 @@ public class Mesa implements Serializable {
 		fichasMesa.remove(ficha);
 	}
 	
-	public ArrayList<Ficha> getFichasMesa() {
-		return fichasMesa;
-	}
-	
 	public boolean sePuedePoner(Ficha ficha) {
 		return (fichasMesa.isEmpty() || sePuedePonerExtremo(ficha, false) || sePuedePonerExtremo(ficha, true));
 	}
 
 	public boolean ambosExtremos(Ficha ficha) {
-		return ( (ficha.getNum1()==extremoIzquierda || ficha.getNum2()==extremoIzquierda) && (ficha.getNum1()==extremoDerecha || ficha.getNum2()==extremoDerecha) );
+		return  (sePuedePonerExtremo(ficha, true) && sePuedePonerExtremo(ficha, false));
 	}
-	
 	
 	public boolean sePuedePonerExtremo(Ficha ficha, boolean extremo) {
 		boolean sePuede = false;
@@ -85,10 +79,4 @@ public class Mesa implements Serializable {
 			pozo.agregarFicha(f);
 		}
 	}
-	
-	
-	
-	
-	
-	
 }

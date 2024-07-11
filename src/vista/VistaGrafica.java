@@ -792,17 +792,27 @@ public class VistaGrafica extends JFrame implements IVista {
 	public void mostrarFichasJugador(IJugador jugadorTurno) {
     	if (sonIguales(jugadorTurno, this.jugador)) {
     		ArrayList<IFicha> fichasActuales = controlador.getFichasJugador(jugador.getId());
-        	
-    		// Obtener copia para evitar ConcurrentModificationException
-            ArrayList<FichaGrafica> fichasViejas = new ArrayList<>(fichasJugadorSur);
-            for (FichaGrafica fichaVieja : fichasViejas) {
-                IFicha ficha = fichaVieja.getFicha();
-                
-                if (!tieneFicha(fichasActuales, ficha)) {
-                    fichasJugadorSur.remove(fichaVieja);
-                    panelFichasJugadorSur.remove(fichaVieja);
+            ArrayList<FichaGrafica> fichasViejas = new ArrayList<>(fichasJugadorSur);        
+            if (fichasViejas.size() > fichasActuales.size()) {
+            	// Sacar viejas:
+                for (FichaGrafica fichaVieja : fichasViejas) {
+                    IFicha ficha = fichaVieja.getFicha();
+                    if (!tieneFicha(fichasActuales, ficha)) {
+                        fichasJugadorSur.remove(fichaVieja);
+                        panelFichasJugadorSur.remove(fichaVieja);
+                    }
                 }
+            } else {
+            	// Agregar nuevas:
+        	    for (IFicha ficha : fichasActuales) {
+        	        if (buscarFichaGrafica(ficha, fichasJugadorSur) == null) {
+        	            FichaGrafica fichaGrafica = crearFichaGrafica(ficha, false);
+        	            fichasJugadorSur.add(fichaGrafica);
+        	            panelFichasJugadorSur.add(fichaGrafica);
+        	        }
+        	    }
             }
+     
     	} else {
     		String ubicacion = ubicaciones.get(jugadorTurno.getId());
 			ArrayList<FichaGraficaReves> fichas;
@@ -817,15 +827,28 @@ public class VistaGrafica extends JFrame implements IVista {
 				fichas = fichasJugadorOeste;
 				panelFichas = panelFichasJugadorOeste;
 			}
-		   	panelFichas.remove(0);
-		    fichas.remove(0);
+			int numFichas = controlador.getNumFichasJugador(jugadorTurno.getId());
+			int diferencia = numFichas-fichas.size();
+			if (diferencia > 0) {
+				// Agregar nuevas:
+				for (int i=1; i<=diferencia; i++) {
+					FichaGraficaReves fichaOponente = crearFichaGraficaReves((ubicacion == "este" || ubicacion == "oeste"), false);
+					panelFichas.add(fichaOponente);
+					fichas.add(fichaOponente);
+				}
+			} else {
+				diferencia = Math.abs(diferencia);
+				// Sacar viejas:
+				for (int i=1; i<=diferencia; i++) {
+					panelFichas.remove(0);
+					fichas.remove(0);
+				}
+			}		    
     	}
     	
     	revalidate();
     	repaint();
 	}	
-    
-    
     
     @Override
 	public void mostrarFichasMesa(IFicha ificha, boolean extremo) {
@@ -934,40 +957,7 @@ public class VistaGrafica extends JFrame implements IVista {
     	repaint();
     }
     
-    @Override
-    public void nuevasFichasJugador(IJugador jugadorTurno) {
-    	if (sonIguales(jugadorTurno, this.jugador)) {
-    		ArrayList<IFicha> fichasActuales = controlador.getFichasJugador(jugador.getId());
-    	    for (IFicha ficha : fichasActuales) {
-    	        if (buscarFichaGrafica(ficha, fichasJugadorSur) == null) {
-    	            FichaGrafica fichaGrafica = crearFichaGrafica(ficha, false); // Vertical (false)
-    	            fichasJugadorSur.add(fichaGrafica);
-    	            panelFichasJugadorSur.add(fichaGrafica);
-    	        }
-    	    }
-    	} else {
-    		
-    		String ubicacion = ubicaciones.get(jugadorTurno.getId());
-			ArrayList<FichaGraficaReves> fichas;
-			JPanel panelFichas;
-			if (ubicacion == "norte") {
-				fichas = fichasJugadorNorte;
-				panelFichas = panelFichasJugadorNorte;
-			} else if (ubicacion == "este") {
-				fichas = fichasJugadorEste;
-				panelFichas = panelFichasJugadorEste;
-			} else {
-				fichas = fichasJugadorOeste;
-				panelFichas = panelFichasJugadorOeste;
-			}
-			FichaGraficaReves fichaOponente = crearFichaGraficaReves((ubicacion == "este" || ubicacion == "oeste"), false); // False es vertical
-			panelFichas.add(fichaOponente);
-			fichas.add(fichaOponente);
-    	}
-    	
-    	revalidate();
-    	repaint();
-    }
+
     
 	@Override
 	public void juntoPuedeTirar(IJugador jugadorTurno, IFicha ficha) {

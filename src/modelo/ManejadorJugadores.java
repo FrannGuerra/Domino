@@ -20,8 +20,25 @@ public class ManejadorJugadores {
 		return jugadores;
 	}
 	
-	public void agregarJugador(Jugador jugador) {
-		jugadores.add(jugador);
+	public Jugador agregarJugador(String nombre, int numJugadores) {
+		IDJugador idjug = null;
+		Jugador jugador = null;
+		if (jugadores.size() == 0) {
+			idjug = IDJugador.JUGADOR1;
+		} else if (jugadores.size() == 1) {
+			idjug = IDJugador.JUGADOR2;
+		} else if (jugadores.size() == 2) {
+			if (numJugadores > 2) 
+				idjug = IDJugador.JUGADOR3;
+		} else if (jugadores.size() == 3) {
+			if (numJugadores == 4) 
+				idjug = IDJugador.JUGADOR4;
+		}
+		if (idjug != null) {
+			jugador = new Jugador(nombre, idjug);
+			jugadores.add(jugador);
+		}
+		return jugador;
 	}
 	
 	public Jugador siguienteJugador(Jugador jugador) {

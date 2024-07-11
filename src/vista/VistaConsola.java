@@ -405,11 +405,6 @@ public class VistaConsola extends JFrame implements IVista {
     }
     
     @Override
-    public void nuevasFichasJugador(IJugador jugadorTurno) {
-    	mostrarFichasJugador(jugadorTurno);
-    }
-    
-    @Override
     public void juntoPuedeTirar(IJugador jugadorTurno, IFicha ficha) {
     	if (sonIguales(jugadorTurno, this.jugador)) {
     		fichaATirar = ficha;

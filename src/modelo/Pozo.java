@@ -15,31 +15,29 @@ public class Pozo implements Serializable {
 		crearFichas();
 	}
 	
-	public void agregarFicha(Ficha ficha) {
-		pozo.add(ficha);
-	}
-	
 	private void crearFichas() {
-		Ficha ficha;
-		for(int i=0; i<=6; i+=1) {
-			for(int j=i; j<=6; j+=1) {
-				ficha = new Ficha(i, j);
-				agregarFicha(ficha);
+		for(int i=0; i<=6; i++) {
+			for(int j=i; j<=6; j++) {
+				agregarFicha(new Ficha(i, j));
 			}
 		}
 		mezclarPozo();
 	}
 	
-	public void eliminarFicha(Ficha ficha) {
-		pozo.remove(ficha);
-	}
-	
 	public void mezclarPozo() {
 		Collections.shuffle(pozo);
 	}
-		
+	
 	public int getTamaño() {
 		return pozo.size();
+	}
+	
+	public void agregarFicha(Ficha ficha) {
+		pozo.add(ficha);
+	}
+		
+	public void eliminarFicha(Ficha ficha) {
+		pozo.remove(ficha);
 	}
 	
 	public Ficha obtenerFicha() {
@@ -48,9 +46,4 @@ public class Pozo implements Serializable {
 		eliminarFicha(ficha);
 		return ficha;
 	}
-	
-	public ArrayList<Ficha> getFichas() {
-		return pozo;
-	}
-	
 }
