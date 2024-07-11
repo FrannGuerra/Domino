@@ -59,30 +59,27 @@ public class VistaGrafica extends JFrame implements IVista {
 	private JPanel rightPanel;
 	
 	private JPanel panelNorte;
-	private JPanel panelSur;
+	private JugadorSur panelSur;
 	private JPanel panelEste;
 	private JPanel panelOeste;
 	
 	private JPanel panelPozo;
 	
 	private JPanel panelFichasJugadorNorte;
-	private JPanel panelFichasJugadorSur;
 	private JPanel panelFichasJugadorEste;
 	private JPanel panelFichasJugadorOeste;
 	
 	private JLabel labelNombreJugadorNorte;
-	private JLabel labelNombreJugadorSur;
 	private JLabel labelNombreJugadorEste;
 	private JLabel labelNombreJugadorOeste;
 	
 	private JLabel labelTurnoJugadorNorte;
-	private JLabel labelTurnoJugadorSur;
 	private JLabel labelTurnoJugadorEste;
 	private JLabel labelTurnoJugadorOeste;
 	
 	// Array de fichas de cada jugador;
 	private ArrayList<FichaGraficaReves> fichasJugadorNorte;
-	private ArrayList<FichaGrafica> fichasJugadorSur;
+	//private ArrayList<FichaGrafica> fichasJugadorSur;
 	private ArrayList<FichaGraficaReves> fichasJugadorEste;
 	private ArrayList<FichaGraficaReves> fichasJugadorOeste;
 	// Array fichas pozo:
@@ -192,30 +189,8 @@ public class VistaGrafica extends JFrame implements IVista {
 
 		
 		// Panel para el jugador Sur (principal)
-		panelSur = new JPanel();
-		panelSur.setLayout(new BoxLayout(panelSur, BoxLayout.X_AXIS));
-		panelSur.setBackground(new Color(160, 80, 80));
-		panelSur.setPreferredSize(new Dimension(250, 70));
-		panelFichasJugadorSur = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		panelFichasJugadorSur.setBackground(new Color(160, 80, 80));
-		JPanel panelEtiquetasSur = new JPanel();
-		panelEtiquetasSur.setBackground(new Color(160, 80, 80));
-		panelEtiquetasSur.setLayout(new BoxLayout(panelEtiquetasSur, BoxLayout.Y_AXIS));
-		panelEtiquetasSur.setPreferredSize(new Dimension(120, panelEtiquetasSur.getPreferredSize().height));	
-		panelEtiquetasSur.add(Box.createVerticalGlue());	
-		labelNombreJugadorSur = new JLabel();
-		labelNombreJugadorSur.setFont(new Font("Arial Black", Font.PLAIN, 18));
-		labelNombreJugadorSur.setAlignmentX(Component.CENTER_ALIGNMENT);
-		panelEtiquetasSur.add(labelNombreJugadorSur);	
-		labelTurnoJugadorSur = new JLabel("Jugando...");
-		labelTurnoJugadorSur.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		labelTurnoJugadorSur.setAlignmentX(Component.CENTER_ALIGNMENT);
-		labelTurnoJugadorSur.setVisible(false);
-		panelEtiquetasSur.add(labelTurnoJugadorSur);
-		panelEtiquetasSur.add(Box.createVerticalGlue());
-		panelSur.add(panelEtiquetasSur);
-		panelSur.add(Box.createHorizontalStrut(30));	
-		panelSur.add(panelFichasJugadorSur);	
+		
+		panelSur = new JugadorSur();
 		leftPanel.add(panelSur, BorderLayout.SOUTH);
 		
 		// Panel para el jugador Norte 
@@ -527,7 +502,8 @@ public class VistaGrafica extends JFrame implements IVista {
             	 // Se clickeo una ficha:
             	 if (estado == Estados.ESPERANDO_ELECCION_PONER_DOBLE) {
             		 // Compruebo que la ficha sea del jugador (puede ser del pozo u otro lugar)
-            		 if (fichaGrafica.getParent() == panelFichasJugadorSur) {
+            		
+            		 //if (fichaGrafica.getParent() == panelFichasJugadorSur) {
                 		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
                 			 estado = Estados.VISTA_INICIADA;
                 			 controlador.ponerDoble();
@@ -536,24 +512,26 @@ public class VistaGrafica extends JFrame implements IVista {
                 			 println("No podés colocar esa ficha, tenes que colocar el doble más grande o la ficha más alta");
                 			 println();
                 		 } 
-            		 }
+            		 //}
             	 } 
             	 else if (estado == Estados.ESPERANDO_ELECCION_FICHA) {
-            		 if (fichaGrafica.getParent() == panelFichasJugadorSur) {
+            		 //if (fichaGrafica.getParent() == panelFichasJugadorSur) {
             			 if (tieneFicha(controlador.getFichasPuedePoner(jugador.getId()), fichaGrafica.getFicha())) {
             				 estado = Estados.VISTA_INICIADA;
-            				 for (FichaGrafica f : fichasJugadorSur) {
+            				 /*for (FichaGrafica f : fichasJugadorSur) {
             					 f.setSeleccionable(false);
             				 }
+            				 */
+            				 panelSur.sacarSeleccionables();
                 			 controlador.ponerFicha(fichaGrafica.getFicha());
             			 } else {
             				 println("No podés colocar esa ficha");
                 			 println();
             			 }
-            		 }
+            		 //}
             	 } 
             	 else if (estado == Estados.ESPERANDO_ELECCION_PONER_FICHA_JUNTADA) {
-            		 if (fichaGrafica.getParent() == panelFichasJugadorSur) {
+            		 //if (fichaGrafica.getParent() == panelFichasJugadorSur) {
                 		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
                 			 estado = Estados.VISTA_INICIADA;
                 			 controlador.ponerFicha(fichaATirar);
@@ -561,7 +539,7 @@ public class VistaGrafica extends JFrame implements IVista {
                 			 println("No podés colocar esa ficha, tenes que colocar la que juntaste");
                 			 println();
                 		 }
-            		 }
+            		// }
             	 }
             	 
             	 
@@ -605,7 +583,6 @@ public class VistaGrafica extends JFrame implements IVista {
 		this.jugadores = jugadores;
 		ubicaciones = new HashMap<>();
 		fichasJugadorNorte = new ArrayList<FichaGraficaReves>();
-		fichasJugadorSur = new ArrayList<FichaGrafica>();
 		
 		
 		int numJugadores = jugadores.size();
@@ -652,7 +629,7 @@ public class VistaGrafica extends JFrame implements IVista {
     		IJugador jugador = jugadoresOrdenados.get(i);
 	        if (i==0) {
 	        	ubicaciones.put(jugador.getId(), "sur");
-	            labelNombreJugadorSur.setText(jugador.getNombre());
+	            panelSur.setNombre(jugador.getNombre());
 	            labelPuntosJugadorSur.setText("Puntos de " + jugador.getNombre() + ": " + jugador.getPuntos());
 	        } else if (i == 1) { 
         		if (jugadores.size() != 4) {
@@ -734,14 +711,13 @@ public class VistaGrafica extends JFrame implements IVista {
 			}
     	}
     	
-    	// Fichas 
-    	fichasJugadorSur.clear();
-    	panelFichasJugadorSur.removeAll();
-    	for (IFicha ficha : controlador.getFichasJugador(this.jugador.getId())) {
-			FichaGrafica fichaGrafica = crearFichaGrafica(ficha, false);	// Vertical (false)
-			fichasJugadorSur.add(fichaGrafica);
-			panelFichasJugadorSur.add(fichaGrafica);
+    	// Fichas Sur
+    	panelSur.eliminarFichas();
+    	for (IFicha ficha: controlador.getFichasJugador(this.jugador.getId())) {
+    		FichaGrafica fichaGrafica = crearFichaGrafica(ficha, false);
+    		panelSur.agregarFicha(fichaGrafica);
     	}
+ 
     	
     	
     	mesa.sacarFichas();
@@ -755,7 +731,7 @@ public class VistaGrafica extends JFrame implements IVista {
     	this.jugadorTurno = jugador;
     	if (sonIguales(jugadorTurno, this.jugador)) {
     		println("Comenzás porque sos el jugador que tiene el doble mas alto o la ficha más alta");
-    		labelTurnoJugadorSur.setVisible(true);
+    		panelSur.mostrarTurno();
     	} else {
     		println("Comienza " + jugador.getNombre() + ", porque es el jugador que tiene el doble mas alto o la ficha más alta");
     		println();
@@ -779,10 +755,8 @@ public class VistaGrafica extends JFrame implements IVista {
     		println("Debes colocarla para empezar");
 	    	println();
 			fichaATirar = ficha;
-			FichaGrafica fichaGrafica = buscarFichaGrafica(ficha, fichasJugadorSur);
-			fichaGrafica.setSeleccionable(true);
-	    	estado = Estados.ESPERANDO_ELECCION_PONER_DOBLE;
-	    	
+			panelSur.setSeleccionable(ficha);
+	    	estado = Estados.ESPERANDO_ELECCION_PONER_DOBLE;    	
 	    	revalidate();
 	    	repaint();
 		}
@@ -792,23 +766,13 @@ public class VistaGrafica extends JFrame implements IVista {
 	public void mostrarFichasJugador(IJugador jugadorTurno) {
     	if (sonIguales(jugadorTurno, this.jugador)) {
     		ArrayList<IFicha> fichasActuales = controlador.getFichasJugador(jugador.getId());
-            ArrayList<FichaGrafica> fichasViejas = new ArrayList<>(fichasJugadorSur);        
-            if (fichasViejas.size() > fichasActuales.size()) {
-            	// Sacar viejas:
-                for (FichaGrafica fichaVieja : fichasViejas) {
-                    IFicha ficha = fichaVieja.getFicha();
-                    if (!tieneFicha(fichasActuales, ficha)) {
-                        fichasJugadorSur.remove(fichaVieja);
-                        panelFichasJugadorSur.remove(fichaVieja);
-                    }
-                }
+    		if (panelSur.getCantidadFichas() > fichasActuales.size()) {
+                panelSur.sacarViejas(fichasActuales);
             } else {
-            	// Agregar nuevas:
         	    for (IFicha ficha : fichasActuales) {
-        	        if (buscarFichaGrafica(ficha, fichasJugadorSur) == null) {
+        	        if (!panelSur.tieneFicha(ficha)) {
         	            FichaGrafica fichaGrafica = crearFichaGrafica(ficha, false);
-        	            fichasJugadorSur.add(fichaGrafica);
-        	            panelFichasJugadorSur.add(fichaGrafica);
+        	            panelSur.agregarFicha(fichaGrafica);
         	        }
         	    }
             }
@@ -861,7 +825,7 @@ public class VistaGrafica extends JFrame implements IVista {
 	public void mostrarTurno(IJugador jugadorTurno) {
     	// Saco el turno anterior
 	    if (sonIguales(this.jugadorTurno, jugador)) {
-	        labelTurnoJugadorSur.setVisible(false);
+	    	panelSur.sacarTurno();
 	    } else {
 	    	String ubicacion = ubicaciones.get(this.jugadorTurno.getId());
 			if (ubicacion == "norte") {
@@ -879,7 +843,7 @@ public class VistaGrafica extends JFrame implements IVista {
     	// Actualizo en pantalla
     	if (sonIguales(jugadorTurno, jugador)) {
     		println("Es tu turno");
-    		labelTurnoJugadorSur.setVisible(true);
+    		panelSur.mostrarTurno();
     	} else {
     		println("Es el turno de " + jugadorTurno.getNombre());
     		String ubicacion = ubicaciones.get(jugadorTurno.getId());
@@ -901,11 +865,7 @@ public class VistaGrafica extends JFrame implements IVista {
 	public void menuEleccionFicha(IJugador jugadorTurno) {
     	if (sonIguales(jugadorTurno, this.jugador)) {
         	ArrayList<IFicha> fichasPuedePoner = controlador.getFichasPuedePoner(jugador.getId());
-    		for (FichaGrafica fichaGrafica : fichasJugadorSur) {
-    			if (tieneFicha(fichasPuedePoner, fichaGrafica.getFicha())) {
-    				fichaGrafica.setSeleccionable(true);
-    			}
-    		}
+    		panelSur.setSeleccionable(fichasPuedePoner);
     		println("Seleccioná la ficha que desees colocar");
     		println();
     		estado = Estados.ESPERANDO_ELECCION_FICHA;
@@ -965,8 +925,7 @@ public class VistaGrafica extends JFrame implements IVista {
 			println("La ficha que juntaste se puede colocar");
 			println();
 			fichaATirar = ficha;
-			FichaGrafica fichaGrafica = buscarFichaGrafica(ficha, fichasJugadorSur);
-			fichaGrafica.setSeleccionable(true);
+			panelSur.setSeleccionable(ficha);
 			estado = Estados.ESPERANDO_ELECCION_PONER_FICHA_JUNTADA;
 		}
 	}   
@@ -1048,13 +1007,4 @@ public class VistaGrafica extends JFrame implements IVista {
     	println();
 	}
 	
-	
-	
-
-
-
-
-
-
-
 }
