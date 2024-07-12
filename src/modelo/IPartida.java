@@ -13,6 +13,8 @@ public interface IPartida extends IObservableRemoto {
 	IJugador agregarJugador(String nombre) throws RemoteException;
 	
 	void iniciarPartida() throws RemoteException;
+	
+	void reanudarPartida() throws RemoteException;
 
 	void ponerDoble() throws RemoteException;
 
@@ -46,4 +48,6 @@ public interface IPartida extends IObservableRemoto {
 	boolean getExtremo() throws RemoteException;
 
 	IJugador getJugadorTurno() throws RemoteException;
+	
+	boolean esPartidaAnterior() throws RemoteException;
 }

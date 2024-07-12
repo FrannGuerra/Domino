@@ -2,6 +2,7 @@ package commons;
 
 public enum Eventos {
 	INICIO_PARTIDA,
+	REANUDACION_PARTIDA,
 	NUEVA_RONDA,
 	COMIENZA_FICHA_ALTA,
 	JUGADOR_TIRAR_DOBLE,	
@@ -19,5 +20,6 @@ public enum Eventos {
 	CIERRE,
 	CONFIRMAR_NUEVA_RONDA,
 	FIN_PARTIDA,
+	PARTIDA_GUARDADA
 }
 

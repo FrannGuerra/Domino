@@ -12,6 +12,11 @@ import commons.IDJugador;
 public class Partida extends ObservableRemoto implements IPartida, Serializable {
 	private static final long serialVersionUID = 1L;
 
+	private boolean esPartidaAnterior;
+	private	boolean sePuedeGuardar;
+	private String nombre;
+	private int jugadoresReanudan;
+	
 	private int cantidadJugadores;
 	private int puntosParaGanar;
 	
@@ -25,8 +30,14 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	private boolean extremo;
 	private int jugadoresPasan;
 	private int jugadoresNuevaRonda;
+	
 
 	public Partida(int cantidadJugadores, int puntosParaGanar) {
+		this.esPartidaAnterior = false;
+		this.sePuedeGuardar = false;
+		this.nombre = "";
+		jugadoresReanudan = 0;
+		
 		this.cantidadJugadores = cantidadJugadores;
 		this.puntosParaGanar = puntosParaGanar;
 		
@@ -45,14 +56,40 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	
 	@Override
 	public IJugador agregarJugador(String nombre) throws RemoteException {
-		return manejadorJugadores.agregarJugador(nombre, cantidadJugadores);
+		IJugador jugador = null;
+		if (esPartidaAnterior) {
+			jugador = manejadorJugadores.cargarJugador(nombre, cantidadJugadores);
+		} else {
+			jugador = manejadorJugadores.agregarJugador(nombre, cantidadJugadores);
+		}
+		return jugador;
 	}
+	
+	private void setNombre() {
+		for (Jugador j: manejadorJugadores.getJugadores()) {
+			this.nombre += j.getNombre() + " ";
+		}
+		this.nombre.trim();
+	}
+	
 	
 	@Override
 	public void iniciarPartida() throws RemoteException {
+		setNombre();
 		notificarObservadores(Eventos.INICIO_PARTIDA);
 		ronda = 1;
 		ronda();
+	}
+	
+	@Override
+	public void reanudarPartida() throws RemoteException {
+		jugadoresReanudan++;
+		if (jugadoresReanudan == cantidadJugadores) {
+			jugadoresNuevaRonda = 0;
+			notificarObservadores(Eventos.REANUDACION_PARTIDA);
+			sePuedeGuardar = false;
+			ronda();
+		}
 	}
 
 	// Cuando el usuario ponga la ficha (evento JUGADOR_TIRAR_DOBLE):
@@ -113,7 +150,7 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	public void comenzarNuevaRonda() throws RemoteException {
 		jugadoresNuevaRonda++;
 		if (jugadoresNuevaRonda == manejadorJugadores.getNumJugadores()) {
-			jugadoresNuevaRonda = 0;
+			sePuedeGuardar = false;
 			ronda();
 		}
 	}
@@ -123,6 +160,7 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	
 	private void ronda() throws RemoteException {
 		jugadoresPasan = 0;
+		jugadoresNuevaRonda = 0;
 		manejadorJugadores.repartirFichas(pozo);	
 		notificarObservadores(Eventos.NUEVA_RONDA);
 		if (ronda == 1) {
@@ -200,6 +238,7 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 			devolverFichasPozo();	
 			ronda++;
 			notificarObservadores(Eventos.CONFIRMAR_NUEVA_RONDA);
+			sePuedeGuardar = true;
 		}
 	}
 	
@@ -262,4 +301,31 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	public IJugador getJugadorTurno() throws RemoteException {
 		return jugadorTurno;
 	}
+	
+	@Override
+	public boolean esPartidaAnterior() throws RemoteException {
+		return this.esPartidaAnterior;
+	}
+	
+	////////////////////////////////////////
+	//// MÉTODOS PARA EL SERVIDOR:
+	
+	public boolean sePuedeGuardar() {
+		return this.sePuedeGuardar;
+	}
+	
+	public String getNombre() {
+		return this.nombre;
+	}
+	
+	public void guardarPartida() throws RemoteException {
+		notificarObservadores(Eventos.PARTIDA_GUARDADA);
+		System.exit(0);
+	}
+	
+	public void configurarPartidaComoAnterior() {
+		this.esPartidaAnterior = true;
+		manejadorJugadores.reiniciarJugadoresReconectados();
+	}
+	
 }

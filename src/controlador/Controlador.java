@@ -32,13 +32,24 @@ public class Controlador implements IControladorRemoto, Serializable {
 			IJugador jugador = modelo.agregarJugador(nombre);
 			if (jugador != null) {
 				vista.setJugador(jugador);
-				if ((jugador.getId() == IDJugador.JUGADOR2 && modelo.getCantidadJugadores() == 2) ||
-				(jugador.getId() == IDJugador.JUGADOR3 && modelo.getCantidadJugadores() == 3) ||
-				(jugador.getId() == IDJugador.JUGADOR4 && modelo.getCantidadJugadores() == 4)) {
-					modelo.iniciarPartida();
+				
+				if (modelo.esPartidaAnterior()) {
+					modelo.reanudarPartida();
+				} else {
+					if ((jugador.getId() == IDJugador.JUGADOR2 && modelo.getCantidadJugadores() == 2) ||
+						(jugador.getId() == IDJugador.JUGADOR3 && modelo.getCantidadJugadores() == 3) ||
+						(jugador.getId() == IDJugador.JUGADOR4 && modelo.getCantidadJugadores() == 4)) {
+						modelo.iniciarPartida();
+					}
 				}
 			} else {
-				vista.maxJugadores();
+				this.modelo.removerObservador(this);	// REMUEVO EL OBSERVADOR
+				
+				if (modelo.esPartidaAnterior()) {
+					vista.nombreNoCoincide();
+				} else {
+					vista.maxJugadores();
+				}
 			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -134,6 +145,10 @@ public class Controlador implements IControladorRemoto, Serializable {
 					vista.mostrarInicioPartida(this.modelo.getJugadores());
 					break;
 					
+				case REANUDACION_PARTIDA:
+					vista.mostrarInicioPartida(this.modelo.getJugadores());
+					break;
+					
 				case NUEVA_RONDA:
 					vista.nuevaRonda(this.modelo.getRonda(), this.modelo.getNumFichasPozo());
 					break;
@@ -200,6 +215,10 @@ public class Controlador implements IControladorRemoto, Serializable {
 				
 				case FIN_PARTIDA:
 					vista.informarTerminoPartida(this.modelo.getJugadorTurno());
+					break;
+					
+				case PARTIDA_GUARDADA:
+					vista.partidaGuardada();
 					break;
 			}
 			

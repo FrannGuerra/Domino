@@ -147,24 +147,24 @@ public class VistaGrafica extends JFrame implements IVista {
 	
 	@Override
 	public void maxJugadores() {
-	    JOptionPane optionPane = new JOptionPane(
-	        "Ya se alcanzó el máximo de jugadores, no podés entrar a la partida",
-	        JOptionPane.ERROR_MESSAGE,
-	        JOptionPane.DEFAULT_OPTION
-	    );
-	    JDialog dialog = optionPane.createDialog(this, "Error");
-	    dialog.addWindowListener(new WindowAdapter() {
-	        @Override
-	        public void windowClosed(WindowEvent e) {
-	            System.exit(0);
-	        }
-
-	        @Override
-	        public void windowClosing(WindowEvent e) {
-	            System.exit(0);
-	        }
-	    });
-	    dialog.setVisible(true);
+		JOptionPane.showMessageDialog(
+            null,
+            "Ya se alcanzó el máximo de jugadores, no podés entrar a la partida",
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+		System.exit(0);
+	}
+	
+	@Override
+	public void nombreNoCoincide() {
+		JOptionPane.showMessageDialog(
+            null,
+            "El jugador ya está en uso, o no existe ese jugador para esta partida cargada, asegurese de escribir bien el nombre",
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+		System.exit(0);
 	}
 	
 	private void iniciar() {
@@ -824,19 +824,21 @@ public class VistaGrafica extends JFrame implements IVista {
     @Override
 	public void mostrarTurno(IJugador jugadorTurno) {
     	// Saco el turno anterior
-	    if (sonIguales(this.jugadorTurno, jugador)) {
-	    	panelSur.sacarTurno();
-	    } else {
-	    	String ubicacion = ubicaciones.get(this.jugadorTurno.getId());
-			if (ubicacion == "norte") {
-				labelTurnoJugadorNorte.setVisible(false);
-			} else if (ubicacion == "este") {
-				labelTurnoJugadorEste.setVisible(false);
-			} else {
-				labelTurnoJugadorOeste.setVisible(false);
-			}
-	    }
+    	if (this.jugadorTurno != null) {	// Porque si se reanuda va a ser nulo
+		    if (sonIguales(this.jugadorTurno, jugador)) {
+		    	panelSur.sacarTurno();
+		    } else {
+		    	String ubicacion = ubicaciones.get(this.jugadorTurno.getId());
+				if (ubicacion == "norte") {
+					labelTurnoJugadorNorte.setVisible(false);
+				} else if (ubicacion == "este") {
+					labelTurnoJugadorEste.setVisible(false);
+				} else {
+					labelTurnoJugadorOeste.setVisible(false);
+				}
+		    }
 	    
+    	}
 	    // Pongo el nuevo turno
     	this.jugadorTurno = jugadorTurno;
     	
@@ -1006,5 +1008,16 @@ public class VistaGrafica extends JFrame implements IVista {
 	  	println(jugadorTurno.getNombre() + " ganó la partida, obtuvo " + jugadorTurno.getPuntos() + " puntos");
     	println();
 	}
+	
+	@Override
+	public void partidaGuardada() {
+		// Escondo el panel por si habia quedado
+		panelNuevaRonda.setVisible(false);
+		estado = Estados.PARTIDA_GUARDADA;
+		println();
+		println("El servidor se cerró y se guardó la partida. Podes salir.");
+		println();
+	}
+
 	
 }

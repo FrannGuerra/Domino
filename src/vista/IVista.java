@@ -9,6 +9,8 @@ public interface IVista {
 	
 	void maxJugadores();
 	
+	void nombreNoCoincide();
+	
 	void mostrarInicioPartida(ArrayList<IJugador> jugadores);
 
 	void nuevaRonda(int ronda, int fichasPozo);
@@ -46,6 +48,8 @@ public interface IVista {
 	void informarTerminoPartida(IJugador jugadorTurno);
 
 	void setJugador(IJugador jugador);
+
+	void partidaGuardada();
 
 
 

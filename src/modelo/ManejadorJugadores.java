@@ -1,15 +1,20 @@
 package modelo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import commons.IDJugador;
 
-public class ManejadorJugadores {
+public class ManejadorJugadores implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+	
+	private ArrayList<Jugador> jugadoresReconectados;
 	private ArrayList<Jugador> jugadores;
 	
 	public ManejadorJugadores() {
 		this.jugadores = new ArrayList<Jugador>();
+		this.jugadoresReconectados = new ArrayList<Jugador>();
 	}
 	
 	public int getNumJugadores() {
@@ -18,6 +23,23 @@ public class ManejadorJugadores {
 	
 	public ArrayList<Jugador> getJugadores() {
 		return jugadores;
+	}
+	
+	public void reiniciarJugadoresReconectados() {
+		jugadoresReconectados.clear();
+	}
+	
+	public Jugador cargarJugador(String nombre, int numJugadores) {
+		Jugador jugador = null;
+		for (Jugador j: jugadores) {
+			if (j.getNombre().equals(nombre) && !jugadoresReconectados.contains(j)) {
+				jugador = j;
+				jugadoresReconectados.add(j);
+				System.out.println("ManejadorJugadores: " + j.getNombre() + " reconectado");
+				break;
+			}
+		}
+		return jugador;
 	}
 	
 	public Jugador agregarJugador(String nombre, int numJugadores) {

@@ -68,24 +68,24 @@ public class VistaConsola extends JFrame implements IVista {
     
 	@Override
 	public void maxJugadores() {
-	    JOptionPane optionPane = new JOptionPane(
-	        "Ya se alcanzó el máximo de jugadores, no podés entrar a la partida",
-	        JOptionPane.ERROR_MESSAGE,
-	        JOptionPane.DEFAULT_OPTION
-	    );
-	    JDialog dialog = optionPane.createDialog(this, "Error");
-	    dialog.addWindowListener(new WindowAdapter() {
-	        @Override
-	        public void windowClosed(WindowEvent e) {
-	            System.exit(0);
-	        }
-
-	        @Override
-	        public void windowClosing(WindowEvent e) {
-	            System.exit(0);
-	        }
-	    });
-	    dialog.setVisible(true);
+		JOptionPane.showMessageDialog(
+            null,
+            "Ya se alcanzó el máximo de jugadores, no podés entrar a la partida",
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+		System.exit(0);
+	}
+	
+	@Override
+	public void nombreNoCoincide() {
+		JOptionPane.showMessageDialog(
+            null,
+            "El jugador ya está en uso, o no existe ese jugador para esta partida cargada, asegurese de escribir bien el nombre",
+            "Error",
+            JOptionPane.ERROR_MESSAGE
+        );
+		System.exit(0);
 	}
     
 	public void mostrarVistaConsola() {
@@ -471,6 +471,13 @@ public class VistaConsola extends JFrame implements IVista {
     	println(jugadorTurno.getNombre() + " ganó la partida, obtuvo " + jugadorTurno.getPuntos() + " puntos");
     	println();
     }
-
+    
+	@Override
+	public void partidaGuardada() {
+		estado = Estados.PARTIDA_GUARDADA;
+		println();
+		println("El servidor se cerró y se guardó la partida. Podes salir.");
+		println();
+	}
 
 }

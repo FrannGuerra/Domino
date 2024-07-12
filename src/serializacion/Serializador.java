@@ -1,6 +1,7 @@
 package serializacion;
 
 import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -108,6 +109,15 @@ public class Serializador {
 			respuesta = null;
 		}
 		return respuesta;
+	}
+	
+	public void limpiarArchivo() {
+		try {
+			FileOutputStream fos = new FileOutputStream(new File(fileName));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 
