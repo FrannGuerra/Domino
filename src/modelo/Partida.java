@@ -58,7 +58,7 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 	public IJugador agregarJugador(String nombre) throws RemoteException {
 		IJugador jugador = null;
 		if (esPartidaAnterior) {
-			jugador = manejadorJugadores.cargarJugador(nombre, cantidadJugadores);
+			jugador = manejadorJugadores.cargarJugador(nombre);
 		} else {
 			jugador = manejadorJugadores.agregarJugador(nombre, cantidadJugadores);
 		}
@@ -72,6 +72,13 @@ public class Partida extends ObservableRemoto implements IPartida, Serializable 
 		this.nombre.trim();
 	}
 	
+	@Override
+	public void jugadorSalio(IDJugador idjugador) throws RemoteException {
+		Jugador jugador = jugadorTurno;
+		jugadorTurno = manejadorJugadores.buscarJugador(idjugador);
+		notificarObservadores(Eventos.SALE_JUGADOR);
+		jugadorTurno = jugador;
+	}
 	
 	@Override
 	public void iniciarPartida() throws RemoteException {

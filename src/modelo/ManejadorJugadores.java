@@ -29,13 +29,12 @@ public class ManejadorJugadores implements Serializable {
 		jugadoresReconectados.clear();
 	}
 	
-	public Jugador cargarJugador(String nombre, int numJugadores) {
+	public Jugador cargarJugador(String nombre) {
 		Jugador jugador = null;
 		for (Jugador j: jugadores) {
 			if (j.getNombre().equals(nombre) && !jugadoresReconectados.contains(j)) {
 				jugador = j;
 				jugadoresReconectados.add(j);
-				System.out.println("ManejadorJugadores: " + j.getNombre() + " reconectado");
 				break;
 			}
 		}

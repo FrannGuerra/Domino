@@ -12,6 +12,8 @@ public interface IPartida extends IObservableRemoto {
 
 	IJugador agregarJugador(String nombre) throws RemoteException;
 	
+	void jugadorSalio(IDJugador idjugador) throws RemoteException;
+	
 	void iniciarPartida() throws RemoteException;
 	
 	void reanudarPartida() throws RemoteException;

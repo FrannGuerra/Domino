@@ -28,8 +28,6 @@ public class AppServidor {
 		    }
 		}
 		
-			
-		
 		ArrayList<String> ips = Util.getIpDisponibles();
 		String ip = (String) JOptionPane.showInputDialog(
 				null, 
@@ -164,7 +162,7 @@ public class AppServidor {
 			    
 				if (partida != null) {
 			        modelo = partida;
-			        modelo.configurarPartidaComoAnterior();	// porque no todos los cambios se guardan
+			        modelo.configurarPartidaComoAnterior();	// porque no todos los cambios se guardan (esPartidaAnterior)
 
 
 			        

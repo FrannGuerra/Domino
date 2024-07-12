@@ -12,6 +12,8 @@ public interface IVista {
 	void nombreNoCoincide();
 	
 	void mostrarInicioPartida(ArrayList<IJugador> jugadores);
+	
+	void mostrarReanudacionPartida(ArrayList<IJugador> jugadores);
 
 	void nuevaRonda(int ronda, int fichasPozo);
 
@@ -50,6 +52,8 @@ public interface IVista {
 	void setJugador(IJugador jugador);
 
 	void partidaGuardada();
+	
+	void saleJugador(IJugador jugadorSalio);
 
 
 

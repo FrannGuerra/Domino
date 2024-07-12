@@ -56,6 +56,23 @@ public class Controlador implements IControladorRemoto, Serializable {
 		}
 	}
 	
+	public void salir() {
+		try {
+			this.modelo.removerObservador(this);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void abandonar(IDJugador idjugador) {	// Abandona en medio de la partida
+		try {
+			this.modelo.removerObservador(this);
+			modelo.jugadorSalio(idjugador);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}	
+	}
+	
 	public int getNumFichasJugador(IDJugador jugador) {
 		int numFichas = 0;
 		try {
@@ -146,7 +163,7 @@ public class Controlador implements IControladorRemoto, Serializable {
 					break;
 					
 				case REANUDACION_PARTIDA:
-					vista.mostrarInicioPartida(this.modelo.getJugadores());
+					vista.mostrarReanudacionPartida(this.modelo.getJugadores());
 					break;
 					
 				case NUEVA_RONDA:
@@ -219,6 +236,10 @@ public class Controlador implements IControladorRemoto, Serializable {
 					
 				case PARTIDA_GUARDADA:
 					vista.partidaGuardada();
+					break;
+					
+				case SALE_JUGADOR:
+					vista.saleJugador(this.modelo.getJugadorTurno());
 					break;
 			}
 			

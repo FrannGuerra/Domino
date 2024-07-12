@@ -9,7 +9,6 @@ import java.awt.FlowLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -30,8 +29,6 @@ import modelo.IFicha;
 import modelo.IJugador;
 
 import com.jgoodies.forms.layout.CellConstraints;
-
-import javax.swing.border.LineBorder;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -84,8 +81,6 @@ public class VistaGrafica extends JFrame implements IVista {
 	private ArrayList<FichaGraficaReves> fichasJugadorOeste;
 	// Array fichas pozo:
 	private ArrayList<FichaGraficaReves> fichasPozo;
-	// Array de fichas de la mesa:
-	private ArrayList<FichaGrafica> fichasMesa;
 	
 	IFicha fichaATirar;	// Para comprobar si apretó la ficha correcta
 	
@@ -115,7 +110,7 @@ public class VistaGrafica extends JFrame implements IVista {
 		ventanaIngreso();
 	}
 	
-	public void ventanaIngreso() {
+	private void ventanaIngreso() {
     	estado = Estados.VENTANA_INGRESO;
     	ventanaIngreso = new VentanaIngresoJugador();
         ventanaIngreso.setVisible(true);
@@ -386,13 +381,38 @@ public class VistaGrafica extends JFrame implements IVista {
         } else {
         	getContentPane().add(mainPanel, BorderLayout.CENTER);
         }
-
+        
 		setResizable(false);
         setSize(1280, 720);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+    			Object[] options = {"Sí", "No"};
+    		    int respuesta = JOptionPane.showOptionDialog(
+    		            null,
+    		            "¿Desea salir de la partida?",
+    		            "Salir",
+    		            JOptionPane.YES_NO_OPTION,
+    		            JOptionPane.QUESTION_MESSAGE,
+    		            null,
+    		            options,
+    		            options[0]
+    		    );
+    		    if (respuesta == JOptionPane.YES_OPTION) {
+                	if (estado == Estados.SALIR) {
+                		controlador.salir();
+                	} else if (estado != Estados.PARTIDA_GUARDADA) {
+                		controlador.abandonar(jugador.getId());
+                	}
+                	System.exit(0);
+    		    }
+            }
+        });
         setLocationRelativeTo(null); 
         setVisible(true);
 	}	
+	
 	
 	private void agregarPozo() {
 		panelOeste.add(Box.createVerticalStrut(5));
@@ -471,12 +491,7 @@ public class VistaGrafica extends JFrame implements IVista {
     private void println() {
     	println("");
     }
-    
-    private void print(String texto) {
-    	infoPartida.append(texto);
-    	infoPartida.setCaretPosition(infoPartida.getDocument().getLength());
-    }
-    
+     
     private boolean sonIguales(IFicha f1, IFicha f2) {
     	return (f1.getNum1() == f2.getNum1()) && (f1.getNum2() == f2.getNum2());
     }
@@ -499,62 +514,39 @@ public class VistaGrafica extends JFrame implements IVista {
     	fichaGrafica.onClick(new MouseAdapter() {
              @Override
              public void mouseClicked(MouseEvent e) {
-            	 // Se clickeo una ficha:
             	 if (estado == Estados.ESPERANDO_ELECCION_PONER_DOBLE) {
-            		 // Compruebo que la ficha sea del jugador (puede ser del pozo u otro lugar)
-            		
-            		 //if (fichaGrafica.getParent() == panelFichasJugadorSur) {
-                		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
-                			 estado = Estados.VISTA_INICIADA;
-                			 controlador.ponerDoble();
-                		 } else {
-                			 // Se apretó una ficha que no es la que tiene que tirar
-                			 println("No podés colocar esa ficha, tenes que colocar el doble más grande o la ficha más alta");
-                			 println();
-                		 } 
-            		 //}
+            		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
+            			 estado = Estados.VISTA_INICIADA;
+            			 controlador.ponerDoble();
+            		 } else {
+            			 // Se apretó una ficha que no es la que tiene que tirar
+            			 println("No podés colocar esa ficha, tenes que colocar el doble más grande o la ficha más alta");
+            			 println();
+            		 } 
             	 } 
             	 else if (estado == Estados.ESPERANDO_ELECCION_FICHA) {
-            		 //if (fichaGrafica.getParent() == panelFichasJugadorSur) {
-            			 if (tieneFicha(controlador.getFichasPuedePoner(jugador.getId()), fichaGrafica.getFicha())) {
-            				 estado = Estados.VISTA_INICIADA;
-            				 /*for (FichaGrafica f : fichasJugadorSur) {
-            					 f.setSeleccionable(false);
-            				 }
-            				 */
-            				 panelSur.sacarSeleccionables();
-                			 controlador.ponerFicha(fichaGrafica.getFicha());
-            			 } else {
-            				 println("No podés colocar esa ficha");
-                			 println();
-            			 }
-            		 //}
+        			 if (tieneFicha(controlador.getFichasPuedePoner(jugador.getId()), fichaGrafica.getFicha())) {
+        				 estado = Estados.VISTA_INICIADA;
+        				 panelSur.sacarSeleccionables();
+            			 controlador.ponerFicha(fichaGrafica.getFicha());
+        			 } else {
+        				 println("No podés colocar esa ficha");
+            			 println();
+        			 } 
             	 } 
             	 else if (estado == Estados.ESPERANDO_ELECCION_PONER_FICHA_JUNTADA) {
-            		 //if (fichaGrafica.getParent() == panelFichasJugadorSur) {
-                		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
-                			 estado = Estados.VISTA_INICIADA;
-                			 controlador.ponerFicha(fichaATirar);
-                		 } else {
-                			 println("No podés colocar esa ficha, tenes que colocar la que juntaste");
-                			 println();
-                		 }
-            		// }
+            		 if (sonIguales(fichaGrafica.getFicha(), fichaATirar)) {
+            			 estado = Estados.VISTA_INICIADA;
+            			 controlador.ponerFicha(fichaATirar);
+            		 } else {
+            			 println("No podés colocar esa ficha, tenes que colocar la que juntaste");
+            			 println();
+            		 }  		
             	 }
             	 
             	 
              }
     	});
-    	return fichaGrafica;
-    }
-    
-    private FichaGrafica buscarFichaGrafica(IFicha datosFicha, ArrayList<FichaGrafica> fichas) {
-    	FichaGrafica fichaGrafica = null;
-    	for (FichaGrafica ficha : fichas) {
-    		if (sonIguales(ficha.getFicha(), datosFicha)) {
-    			fichaGrafica = ficha;
-    		}
-    	}
     	return fichaGrafica;
     }
     
@@ -576,11 +568,8 @@ public class VistaGrafica extends JFrame implements IVista {
     	return fichaGraficaReves;
     }
     
-    
-    
-	@Override
-	public void mostrarInicioPartida(ArrayList<IJugador> jugadores) {
-		this.jugadores = jugadores;
+    private void mostrarDatosPartida(ArrayList<IJugador> jugadores, String mensaje) {
+    	this.jugadores = jugadores;
 		ubicaciones = new HashMap<>();
 		fichasJugadorNorte = new ArrayList<FichaGraficaReves>();
 		
@@ -661,11 +650,21 @@ public class VistaGrafica extends JFrame implements IVista {
 		
 		
     	println();
-    	println("La partida comenzó");
+    	println(mensaje);
     	println();
     	
     	revalidate();
     	repaint();
+    }
+    
+    @Override
+    public void mostrarInicioPartida(ArrayList<IJugador> jugadores) {
+    	mostrarDatosPartida(jugadores, "La partida comenzó");
+    }
+    
+    @Override
+    public void mostrarReanudacionPartida(ArrayList<IJugador> jugadores) {
+    	mostrarDatosPartida(jugadores, "La partida se reanudó");
     }
     
 	
@@ -1011,7 +1010,6 @@ public class VistaGrafica extends JFrame implements IVista {
 	
 	@Override
 	public void partidaGuardada() {
-		// Escondo el panel por si habia quedado
 		panelNuevaRonda.setVisible(false);
 		estado = Estados.PARTIDA_GUARDADA;
 		println();
@@ -1019,5 +1017,14 @@ public class VistaGrafica extends JFrame implements IVista {
 		println();
 	}
 
+	@Override
+	public void saleJugador(IJugador jugadorSalio) {
+		println(jugadorSalio.getNombre() + " abandonó la partida, es posible que el progreso no se guarde. Podes salir.");
+		println();
+		panelNuevaRonda.setVisible(false);
+		panelEleccionExtremos.setVisible(false);
+		panelPresionarPasar.setVisible(false);
+		estado = Estados.SALIR;
+	}
 	
 }

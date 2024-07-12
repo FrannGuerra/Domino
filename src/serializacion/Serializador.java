@@ -61,6 +61,9 @@ public class Serializador {
 			
 			ois.close();
 			
+		}catch (EOFException e) {
+			System.out.println("Lectura completada");
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			
@@ -114,11 +117,13 @@ public class Serializador {
 	public void limpiarArchivo() {
 		try {
 			FileOutputStream fos = new FileOutputStream(new File(fileName));
+			fos.close();
 		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-
 }

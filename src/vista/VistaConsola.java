@@ -36,7 +36,7 @@ public class VistaConsola extends JFrame implements IVista {
     	ventanaIngreso();
     }
     
-    public void ventanaIngreso() {
+    private void ventanaIngreso() {
     	estado = Estados.VENTANA_INGRESO;
     	ventanaIngreso = new VentanaIngresoJugador();
         ventanaIngreso.setVisible(true);
@@ -88,12 +88,38 @@ public class VistaConsola extends JFrame implements IVista {
 		System.exit(0);
 	}
     
-	public void mostrarVistaConsola() {
+	private void mostrarVistaConsola() {
     	estado = Estados.VISTA_INICIADA;
     	setVisible(true);
         setTitle("Vista de Consola");
         setSize(1000, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+    			Object[] options = {"Sí", "No"};
+    		    int respuesta = JOptionPane.showOptionDialog(
+    		            null,
+    		            "¿Desea salir de la partida?",
+    		            "Salir",
+    		            JOptionPane.YES_NO_OPTION,
+    		            JOptionPane.QUESTION_MESSAGE,
+    		            null,
+    		            options,
+    		            options[0]
+    		    );
+    		    if (respuesta == JOptionPane.YES_OPTION) {
+                	if (estado == Estados.SALIR) {
+                		controlador.salir();
+                	} else if (estado != Estados.PARTIDA_GUARDADA){
+                		controlador.abandonar(jugador.getId());
+                	}
+                	System.exit(0);
+    		    }
+            }
+        });
+        
+        
         setLocationRelativeTo(null);
       
         textoConsola = new JTextArea();
@@ -209,7 +235,7 @@ public class VistaConsola extends JFrame implements IVista {
         add(inputPanel, BorderLayout.SOUTH);
     }
 	
-    public boolean esEntero(String str) {
+    private boolean esEntero(String str) {
         try {
             Integer.parseInt(str);
             return true;
@@ -232,30 +258,31 @@ public class VistaConsola extends JFrame implements IVista {
     	textoConsola.setCaretPosition(textoConsola.getDocument().getLength());
     }
     
-    private boolean sonIguales(IFicha f1, IFicha f2) {
-    	return (f1.getNum1() == f2.getNum1()) && (f1.getNum2() == f2.getNum2());
-    }
-    
     private boolean sonIguales(IJugador j1, IJugador j2) {
     	return j1.getId() == j2.getId();
     }
     
-    @Override
-    public void mostrarInicioPartida(ArrayList<IJugador> jugadores) {
+    private void mostrarDatosPartida(ArrayList<IJugador> jugadores, String mensaje) {
     	this.jugadores = jugadores;
     	fichasMesa = new ArrayList<String>();
     	
     	println("Jugadores de esta partida: ");
     	for (IJugador jugador : jugadores) {
-	        String nombre = jugador.getNombre();
-	        if (sonIguales(jugador, this.jugador)) {
-	            nombre += " (Tú)";
-	        }
-	        println(" - " + nombre);
+	        println(" - " + jugador.getNombre());
 	    }
     	println();
-    	println("La partida comenzó");
+    	println(mensaje);
     	println();
+    }
+    
+    @Override
+    public void mostrarInicioPartida(ArrayList<IJugador> jugadores) {
+    	mostrarDatosPartida(jugadores, "La partida comenzó");
+    }
+    
+    @Override
+    public void mostrarReanudacionPartida(ArrayList<IJugador> jugadores) {
+    	mostrarDatosPartida(jugadores, "La partida se reanudó");
     }
     
     @Override
@@ -478,6 +505,15 @@ public class VistaConsola extends JFrame implements IVista {
 		println();
 		println("El servidor se cerró y se guardó la partida. Podes salir.");
 		println();
+	}
+	
+	@Override
+	public void saleJugador(IJugador jugadorSalio) {
+		println();
+		println();
+		println(jugadorSalio.getNombre() + " abandonó la partida, es posible que el progreso no se guarde. Podes salir.");
+		println();
+		estado = Estados.SALIR;
 	}
 
 }
